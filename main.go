@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/google/uuid"
 	"github.com/stevenzack/k8scd/rest"
 	"github.com/stevenzack/k8scd/store"
 )
@@ -25,9 +26,9 @@ var (
 
 func main() {
 	flag.Parse()
-	if adminPassword == nil || *adminPassword == "" || len(*adminPassword) < 6 {
-		log.Panic("admin password not or invalid")
-		return
+	if adminPassword == nil || *adminPassword == "" {
+		*adminPassword = uuid.NewString()
+		println("Generated admin password: " + *adminPassword)
 	}
 	e := os.MkdirAll(filepath.Dir(*logFile), 0755)
 	if e != nil {
