@@ -24,6 +24,8 @@ type (
 		RunningTag string
 		LastError  string
 
+		Deployments []Deployment `json:"-"`
+
 		UpdatedAt string
 		CreatedAt string
 	}
@@ -70,7 +72,7 @@ func (s *Repo) CloneGitRepoTo(dst string) error {
 	return cmd.Run()
 }
 func (s *Store) GetRepos() ([]Repo, error) {
-	b, e := s.getValue("repos")
+	b, e := s.getValue("repos.json")
 	if e != nil {
 		return nil, e
 	}
@@ -102,7 +104,7 @@ func (s *Store) GetRepoById(id string) (r Repo, e error) {
 }
 
 func (s *Store) SetRepos(repos []Repo) error {
-	return s.setValue("repos", repos)
+	return s.setValue("repos.json", repos)
 }
 
 func (s *Store) UpdateRepo(v Repo) error {
@@ -119,7 +121,7 @@ func (s *Store) UpdateRepo(v Repo) error {
 	}
 	return sql.ErrNoRows
 }
-func (s *Store) Insert(v Repo) error {
+func (s *Store) InsertRepo(v Repo) error {
 	if v.Id == "" {
 		return fmt.Errorf("repo.Id cannot be empty")
 	}
@@ -137,7 +139,7 @@ func (s *Store) Insert(v Repo) error {
 	return s.SetRepos(vs)
 }
 
-func (s *Store) Delete(id string) error {
+func (s *Store) DeleteRepo(id string) error {
 	var out []Repo
 	vs, e := s.GetRepos()
 	if e != nil {
@@ -148,5 +150,6 @@ func (s *Store) Delete(id string) error {
 			out = append(out, v)
 		}
 	}
+	os.RemoveAll(filepath.Join(s.dir, "repos", id))
 	return s.SetRepos(out)
 }

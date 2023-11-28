@@ -9,7 +9,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/stevenzack/k8scd/store"
 )
 
@@ -39,7 +38,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 			badRequest(w, e)
 			return
 		}
-		v.Id = strings.ReplaceAll(uuid.NewString(), "-", "")
+		v.Id = newID()
 		v.UpdatedAt = time.Now().Format(time.DateTime)
 		v.CreatedAt = time.Now().Format(time.DateTime)
 
@@ -68,7 +67,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		e = stores.Insert(v)
+		e = stores.InsertRepo(v)
 		if e != nil {
 			log.Panic(e)
 			return
@@ -107,7 +106,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 		}
 		for _, v2 := range vs {
 			if v2.Id == id {
-				e = stores.Delete(id)
+				e = stores.DeleteRepo(id)
 				if e != nil {
 					log.Panic(e)
 					return

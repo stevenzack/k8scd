@@ -10,7 +10,11 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
+	"time"
+
+	"github.com/stevenzack/k8scd/store"
 )
 
 type WebHookRequest struct {
@@ -123,26 +127,41 @@ func dockerhubWebhook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	cmd := exec.Command("kubectl", "apply", "-f", dst)
+	cmd.Stderr = log.Writer()
+	cmd.Stdout = log.Writer()
+	e = cmd.Run()
+	if e != nil {
+		log.Panic(e)
+		project.LastError = e.Error()
+		return
+	}
+	b, e = json.Marshal(WebHookCallback{
+		State: CallbackStateSuccess,
+	})
+	if e != nil {
+		log.Panic(e)
+		return
+	}
+
+	e = stores.InsertDeployment(store.Deployment{
+		Id:        strconv.FormatInt(time.Now().Unix(), 10),
+		ProjectId: id,
+		Tag:       req.PushData.Tag,
+		CreatedAt: time.Now().Format(time.DateTime),
+	})
+	if e != nil {
+		log.Println(e)
+		return
+	}
+
+	if req.CallbackUrl == "" {
+		return
+	}
 	go func() {
-		cmd := exec.Command("kubectl", "apply", "-f", dst)
-		cmd.Stderr = log.Writer()
-		cmd.Stdout = log.Writer()
-		e = cmd.Run()
-		if e != nil {
-			log.Panic(e)
-			project.LastError = e.Error()
-			return
-		}
-		b, e := json.Marshal(WebHookCallback{
-			State: CallbackStateSuccess,
-		})
-		if e != nil {
-			log.Panic(e)
-			return
-		}
 		_, e = http.Post(req.CallbackUrl, "application/json", bytes.NewReader(b))
 		if e != nil {
-			log.Panic(e)
+			log.Println(e)
 			return
 		}
 	}()

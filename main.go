@@ -7,7 +7,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/google/uuid"
 	"github.com/stevenzack/k8scd/rest"
 	"github.com/stevenzack/k8scd/store"
 )
@@ -27,7 +26,7 @@ var (
 func main() {
 	flag.Parse()
 	if adminPassword == nil || *adminPassword == "" {
-		*adminPassword = uuid.NewString()
+		*adminPassword = newID()
 		println("Generated admin password: " + *adminPassword)
 	}
 	e := os.MkdirAll(filepath.Dir(*logFile), 0755)
@@ -54,9 +53,11 @@ func main() {
 	r := rest.New()
 	r.HandleFunc("/", home)
 	r.HandleFunc("/login", login)
+	r.HandleFunc("/projects/", project)
 	r.HandleFunc(dockerHubWebhookRoutePath, dockerhubWebhook)
 	// r.HandleFunc(apiNotifierRoutePath, notifier)
 	log.Println("started http://localhost" + *port)
+	println("started http://localhost" + *port)
 	e = http.ListenAndServe(*port, r)
 	if e != nil {
 		log.Panic(e)
