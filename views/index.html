@@ -1,24 +1,109 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>K8sCD</title>
     <link rel="stylesheet" href="https://stevenzack.github.io/leafapp/leafapp.css">
     <script defer src="https://stevenzack.github.io/leafapp/leafapp.js"></script>
+    <script>
+        function doCopy(self, id) {
+            self.disabled = true;
+            var before = self.innerHTML;
+            self.innerHTML = 'OK'
+            var elem = document.createElement('input');
+            elem.type = 'text';
+            elem.style.position = 'absolute'
+            elem.style.top = '-300px';
+            elem.value = location.origin + '/api/docker-hub-webhook/' + id;
+            document.body.appendChild(elem);
+            elem.focus();
+            elem.select();
+
+            document.execCommand('copy')
+            setTimeout(() => {
+                self.innerHTML = before
+                self.disabled = false;
+                document.body.removeChild(elem)
+            }, 1000);
+        }
+    </script>
 </head>
+
 <body>
     <div class="c">
-        <div class="maxwsm w">
+        <div class="maxw w">
             <h1>K8sCD</h1>
             <hr>
+            <details>
+                <summary>Add a project</summary>
+                <form action="/" method="post">
+                    <input type="text" name="name" placeholder="name"><br>
+                    <input type="text" name="giturl" placeholder="Git URL"><br>
+                    <input type="text" name="gitbranch" placeholder="Git Branch"><br>
+                    <input type="text" name="yamlrelpath" placeholder="YAML file relative path in Git Repo"><br>
+                    <input type="text" name="tagprefix" placeholder="Tag filter, only deploy when tag has this prefix"
+                        value="sha-"><br>
+                    <input type="submit" value="add">
+                </form>
+            </details>
+            <hr>
             <table border="1">
-                <th>
-                    <td></td>
-                    
-                </th>
+                <tr>
+                    <th>Name</th>
+                    <th>Running Tag</th>
+                    <th>Last Error</th>
+                    <th>Updated At</th>
+                    <th>URLs</th>
+                    <th>Edit</th>
+                    <th>Delete</th>
+                </tr>
+                {{range .}}
+                <tr>
+                    <td>
+                        {{.Name}}
+                    </td>
+                    <td>
+                        {{.RunningTag}}
+                    </td>
+                    <td>
+                        {{.LastError}}
+                    </td>
+                    <td>
+                        {{.UpdatedAt}}
+                    </td>
+                    <td>
+                        <details>
+                            <summary>Copy URLs</summary>
+                            <button onclick="doCopy(this,'{{.Id}}')">Copy webhook URL for DockerHub</button>
+                        </details>
+                    </td>
+                    <td>
+                        <details>
+                            <summary>Edit</summary>
+                            <form method="patch" action="/">
+                                <input type="hidden" name="id" value="{{.Id}}">
+                                <input type="text" name="name" placeholder="name" value="{{.Name}}"><br>
+                                <input type="text" name="giturl" placeholder="Git URL" value="{{.GitURL}}"><br>
+                                <input type="text" name="gitbranch" placeholder="Git Branch" value="{{.GitBranch}}"><br>
+                                <input type="text" name="yamlrelpath" placeholder="YAML file relative path in Git Repo"
+                                    value="{{.YamlRelPath}}"><br>
+                                <input type="text" name="tagprefix"
+                                    placeholder="Tag filter, only deploy when tag has this prefix"
+                                    value="{{.TagPrefix}}"><br>
+                                <input type="submit" value="submit">
+                            </form>
+                        </details>
+                    </td>
+                    <td>
+                        <button href-delete="/?id={{.Id}}">Delete</button>
+                    </td>
+                </tr>
+                {{end}}
             </table>
         </div>
     </div>
 </body>
+
 </html>

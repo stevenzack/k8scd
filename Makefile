@@ -1,2 +1,2 @@
 run:
-	go run . -pwd 123456
+	go run .

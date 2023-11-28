@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -122,13 +123,27 @@ func dockerhubWebhook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cmd := exec.Command("kubectl", "apply", "-f", dst)
-	cmd.Stderr = log.Writer()
-	cmd.Stdout = log.Writer()
-	e = cmd.Run()
-	if e != nil {
-		log.Panic(e)
-		project.LastError = e.Error()
-		return
-	}
+	go func() {
+		cmd := exec.Command("kubectl", "apply", "-f", dst)
+		cmd.Stderr = log.Writer()
+		cmd.Stdout = log.Writer()
+		e = cmd.Run()
+		if e != nil {
+			log.Panic(e)
+			project.LastError = e.Error()
+			return
+		}
+		b, e := json.Marshal(WebHookCallback{
+			State: CallbackStateSuccess,
+		})
+		if e != nil {
+			log.Panic(e)
+			return
+		}
+		_, e = http.Post(req.CallbackUrl, "application/json", bytes.NewReader(b))
+		if e != nil {
+			log.Panic(e)
+			return
+		}
+	}()
 }

@@ -13,7 +13,7 @@ var (
 	loginCache    = make(map[string]time.Time)
 	jwtSecret     = []byte("hGLXkPLD48AD")
 	jwtCookieName = "at"
-	jwtAge        = time.Hour * 24 * 3
+	jwtAge        = time.Minute * 10
 )
 
 func login(w http.ResponseWriter, r *http.Request) {
@@ -42,7 +42,6 @@ func login(w http.ResponseWriter, r *http.Request) {
 		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 			"exp": time.Now().Add(jwtAge).Unix(),
 		})
-
 		// Sign and get the complete encoded token as a string using the secret
 		tokenString, e := token.SignedString(jwtSecret)
 		if e != nil {

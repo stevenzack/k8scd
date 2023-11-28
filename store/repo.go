@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -23,10 +24,42 @@ type (
 		RunningTag string
 		LastError  string
 
-		UpdatedAt time.Time
-		CreatedAt time.Time
+		UpdatedAt string
+		CreatedAt string
 	}
 )
+
+func ValidateRepoForm(r *http.Request) (v Repo, e error) {
+	v.Name, e = parseFormValue(r, "name")
+	if e != nil {
+		return
+	}
+	v.GitURL, e = parseFormValue(r, "giturl")
+	if e != nil {
+		return
+	}
+	v.GitBranch, e = parseFormValue(r, "gitbranch")
+	if e != nil {
+		return
+	}
+	v.YamlRelPath, e = parseFormValue(r, "yamlrelpath")
+	if e != nil {
+		return
+	}
+	v.TagPrefix, e = parseFormValue(r, "tagprefix")
+	if e != nil {
+		return
+	}
+
+	return v, nil
+}
+func parseFormValue(r *http.Request, key string) (string, error) {
+	v := r.FormValue(key)
+	if v == "" {
+		return "", fmt.Errorf("field " + key + " cannot be empty")
+	}
+	return v, nil
+}
 
 func (s *Repo) CloneGitRepoTo(dst string) error {
 	os.MkdirAll(filepath.Dir(dst), 0700)
@@ -79,10 +112,41 @@ func (s *Store) UpdateRepo(v Repo) error {
 	}
 	for i, v2 := range vs {
 		if v2.Id == v.Id {
-			v.UpdatedAt = time.Now()
+			v.UpdatedAt = time.Now().Format(time.DateTime)
 			vs[i] = v
 			return s.SetRepos(vs)
 		}
 	}
 	return sql.ErrNoRows
+}
+func (s *Store) Insert(v Repo) error {
+	if v.Id == "" {
+		return fmt.Errorf("repo.Id cannot be empty")
+	}
+
+	vs, e := s.GetRepos()
+	if e != nil {
+		return e
+	}
+	for _, v2 := range vs {
+		if v2.Id == v.Id {
+			return fmt.Errorf("duplicated id for repo:" + v.Id)
+		}
+	}
+	vs = append(vs, v)
+	return s.SetRepos(vs)
+}
+
+func (s *Store) Delete(id string) error {
+	var out []Repo
+	vs, e := s.GetRepos()
+	if e != nil {
+		return e
+	}
+	for _, v := range vs {
+		if v.Id != id {
+			out = append(out, v)
+		}
+	}
+	return s.SetRepos(out)
 }
