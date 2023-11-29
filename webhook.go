@@ -88,7 +88,6 @@ func dockerhubWebhook(w http.ResponseWriter, r *http.Request) {
 	}
 	// get tag
 	if !strings.HasPrefix(req.PushData.Tag, project.TagPrefix) {
-		log.Println("ignored tag change:", req.PushData.Tag, " for project "+project.Name)
 		return
 	}
 
