@@ -154,6 +154,7 @@ func dockerhubWebhook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	project.RunningTag = req.PushData.Tag
 	if req.CallbackUrl == "" {
 		return
 	}

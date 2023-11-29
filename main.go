@@ -55,7 +55,7 @@ func main() {
 	r.HandleFunc("/login", login)
 	r.HandleFunc("/projects/", project)
 	r.HandleFunc(dockerHubWebhookRoutePath, dockerhubWebhook)
-	// r.HandleFunc(apiNotifierRoutePath, notifier)
+	r.HandleFunc(apiNotifierRoutePath, notifier)
 	log.Println("started http://localhost" + *port)
 	println("started http://localhost" + *port)
 	e = http.ListenAndServe(*port, r)

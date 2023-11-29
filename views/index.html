@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://stevenzack.github.io/leafapp/leafapp.css">
     <script defer src="https://stevenzack.github.io/leafapp/leafapp.js"></script>
     <script>
-        function doCopy(self, id) {
+        function doCopyDockerWebhook(self, id) {
             self.disabled = true;
             var before = self.innerHTML;
             self.innerHTML = 'OK'
@@ -17,6 +17,26 @@
             elem.style.position = 'absolute'
             elem.style.top = '-300px';
             elem.value = location.origin + '/api/docker-hub-webhook/' + id;
+            document.body.appendChild(elem);
+            elem.focus();
+            elem.select();
+
+            document.execCommand('copy')
+            setTimeout(() => {
+                self.innerHTML = before
+                self.disabled = false;
+                document.body.removeChild(elem)
+            }, 1000);
+        }
+        function doCopyWebNotifier(self, id) {
+            self.disabled = true;
+            var before = self.innerHTML;
+            self.innerHTML = 'OK'
+            var elem = document.createElement('input');
+            elem.type = 'text';
+            elem.style.position = 'absolute'
+            elem.style.top = '-300px';
+            elem.value = location.origin + '/api/notifier/' + id;
             document.body.appendChild(elem);
             elem.focus();
             elem.select();
@@ -76,7 +96,8 @@
                     <td>
                         <details>
                             <summary>Copy URLs</summary>
-                            <button onclick="doCopy(this,'{{.Id}}')">Copy webhook URL for DockerHub</button>
+                            <button onclick="doCopyDockerWebhook(this,'{{.Id}}')">Webhook for DockerHub</button><br>
+                            <button onclick="doCopyWebNotifier(this,'{{.Id}}')">Web Notifier</button>
                         </details>
                     </td>
                     <td>
