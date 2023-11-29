@@ -63,7 +63,7 @@ func notifier(w http.ResponseWriter, r *http.Request) {
 
 	//do
 	dir := filepath.Join("notifier-cache", project.Id)
-	// defer os.RemoveAll(dir)
+	defer os.RemoveAll(dir)
 	e = project.CloneGitRepoTo(dir)
 	if e != nil {
 		log.Panic(e)

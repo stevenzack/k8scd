@@ -65,7 +65,7 @@ func parseFormValue(r *http.Request, key string) (string, error) {
 
 func (s *Repo) CloneGitRepoTo(dst string) error {
 	os.MkdirAll(filepath.Dir(dst), 0700)
-
+	os.RemoveAll(dst)
 	cmd := exec.Command("git", "clone", "-b", s.GitBranch, s.GitURL, dst)
 	cmd.Stderr = log.Writer()
 	cmd.Stdout = log.Writer()
