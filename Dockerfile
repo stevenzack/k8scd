@@ -19,7 +19,7 @@ COPY --from=builder /app/main .
 RUN upx --best --lzma ./main
 
 FROM scratch AS production
-WORKDIR /root/
+WORKDIR /
 COPY --from=minify /root/main . 
 EXPOSE 9876
-ENTRYPOINT [ "./main" ]
+ENTRYPOINT [ "./main"]

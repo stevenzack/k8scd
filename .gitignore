@@ -1,4 +1,4 @@
 log.txt
-db/
+kv/
 docker-webhook-cache/
 notifier-cache/

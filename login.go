@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -14,6 +16,7 @@ var (
 	jwtSecret     = []byte("hGLXkPLD48AD")
 	jwtCookieName = "at"
 	jwtAge        = time.Hour * 24
+	pwdTxt        = "pwd.txt"
 )
 
 func login(w http.ResponseWriter, r *http.Request) {
@@ -21,6 +24,12 @@ func login(w http.ResponseWriter, r *http.Request) {
 	case http.MethodGet:
 		if adminPassword == "" {
 			adminPassword = newID()
+			e := os.WriteFile(filepath.Join(*kvStoreDir, pwdTxt), []byte(adminPassword), 0600)
+			if e != nil {
+				log.Panic(e)
+				return
+			}
+
 			t.ExecuteTemplate(w, "login.html", adminPassword)
 			return
 		}

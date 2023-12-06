@@ -15,7 +15,7 @@ var (
 	port           = flag.String("p", ":9876", "The port you want to listen")
 	logFile        = flag.String("l", "log.txt", "The log.txt file path")
 	remoteIPHeader = flag.String("ip-header", "", "The header that contains remote IP, e.g 'X-Ip'. Default empty")
-	kvStoreDir     = flag.String("dir", "db", "Directory that store all the sensitive configuration data")
+	kvStoreDir     = flag.String("kv", "", "Directory that store all the sensitive configuration data")
 	adminPassword  string
 )
 
@@ -25,6 +25,7 @@ var (
 
 func main() {
 	flag.Parse()
+	initialize()
 	e := os.MkdirAll(filepath.Dir(*logFile), 0755)
 	if e != nil {
 		log.Panic(e)
@@ -54,9 +55,32 @@ func main() {
 	r.HandleFunc(apiNotifierRoutePath, notifier)
 	log.Println("started http://localhost" + *port)
 	println("started http://localhost" + *port)
+	println("kv dir: ", *kvStoreDir)
 	e = http.ListenAndServe(*port, r)
 	if e != nil {
 		log.Panic(e)
 		return
+	}
+}
+
+func initialize() {
+	if kvStoreDir == nil || *kvStoreDir == "" {
+		*kvStoreDir = os.Getenv("KV")
+		if *kvStoreDir == "" {
+			*kvStoreDir = "kv"
+		}
+	}
+
+	b, e := os.ReadFile(filepath.Join(*kvStoreDir, pwdTxt))
+	if e != nil {
+		if os.IsNotExist(e) {
+			return
+		}
+		log.Panic(e)
+		return
+	}
+	s := string(b)
+	if s != "" {
+		adminPassword = s
 	}
 }
