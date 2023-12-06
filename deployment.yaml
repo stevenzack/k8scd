@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
         - name: k8scd
-          image:  zigzigcheers/k8scd:latest
+          image:  zigzigcheers/k8scd:main
           ports:
           - containerPort: 9876
           resources:
