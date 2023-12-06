@@ -3,6 +3,7 @@
 Simple GitOps tool for Kubernetes
 
 ```
+sudo mkdir -p /var/local/k8scd-kv
 kubectl apply -f https://raw.githubusercontent.com/stevenzack/k8scd/main/deployment.yaml
 ```
 
