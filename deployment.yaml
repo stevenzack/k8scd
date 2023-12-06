@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8scd-deployment
+spec:
+  selector:
+    matchLabels:
+      app: k8scd
+  template:
+    metadata:
+      labels:
+        app: k8scd
+    spec:
+      containers:
+        - name: k8scd
+          image:  zigzigcheers/k8scd:latest
+          ports:
+          - containerPort: 9876
+          resources:
+            limits:
+              memory: 1024Mi
+              cpu: '2'
+            requests:
+              memory: 64Mi
+              cpu: '0.5'
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name:  k8scd-service
+spec:
+  selector:
+    app: k8scd
+  type: LoadBalancer
+  ports:
+  - port: 9876

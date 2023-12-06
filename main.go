@@ -14,9 +14,9 @@ import (
 var (
 	port           = flag.String("p", ":9876", "The port you want to listen")
 	logFile        = flag.String("l", "log.txt", "The log.txt file path")
-	adminPassword  = flag.String("pwd", "", "admin password")
 	remoteIPHeader = flag.String("ip-header", "", "The header that contains remote IP, e.g 'X-Ip'. Default empty")
 	kvStoreDir     = flag.String("dir", "db", "Directory that store all the sensitive configuration data")
+	adminPassword  string
 )
 
 var (
@@ -25,10 +25,6 @@ var (
 
 func main() {
 	flag.Parse()
-	if adminPassword == nil || *adminPassword == "" {
-		*adminPassword = newID()
-		println("Generated admin password: " + *adminPassword)
-	}
 	e := os.MkdirAll(filepath.Dir(*logFile), 0755)
 	if e != nil {
 		log.Panic(e)

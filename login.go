@@ -13,13 +13,18 @@ var (
 	loginCache    = make(map[string]time.Time)
 	jwtSecret     = []byte("hGLXkPLD48AD")
 	jwtCookieName = "at"
-	jwtAge        = time.Minute * 10
+	jwtAge        = time.Hour * 24
 )
 
 func login(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		t.ExecuteTemplate(w, "login.html", nil)
+		if adminPassword == "" {
+			adminPassword = newID()
+			t.ExecuteTemplate(w, "login.html", adminPassword)
+			return
+		}
+		t.ExecuteTemplate(w, "login.html", "")
 		return
 	case http.MethodPost:
 		ip := r.RemoteAddr
@@ -33,7 +38,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 		}
 		loginCache[ip] = time.Now()
 
-		if r.FormValue("password") != *adminPassword {
+		if r.FormValue("password") != adminPassword {
 			time.Sleep(time.Second * 5)
 			http.Error(w, "password incorrect", http.StatusBadRequest)
 			return

@@ -14,6 +14,8 @@
         <div class="maxwsm w">
             <h1>Login</h1>
             <hr>
+            {{if ne . ""}} First time login, please store your new password to login: <i>{{.}}</i>
+            {{end}}
             <form action="/login" method="post">
                 <input type="password" name="password" maxlength="36" placeholder="admin password">
                 <input type="submit" value="login">
