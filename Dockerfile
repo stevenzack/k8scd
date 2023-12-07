@@ -18,8 +18,9 @@ WORKDIR /root
 COPY --from=builder /app/main .
 RUN upx --best --lzma ./main
 
-FROM scratch AS production
+FROM alpine AS production
 WORKDIR /
 COPY --from=minify /root/main . 
+RUN apk add git
 EXPOSE 9876
 ENTRYPOINT [ "./main"]
