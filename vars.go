@@ -13,5 +13,5 @@ var (
 )
 
 func init() {
-	log.SetFlags(log.Ldate | log.Ltime)
+	log.SetFlags(log.Lshortfile | log.Ldate | log.Ltime)
 }
