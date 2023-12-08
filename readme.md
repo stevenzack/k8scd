@@ -11,7 +11,8 @@ Install k8scd
 
 ```
 mkdir ~/.k8scd
-curl https://github.com/stevenzack/k8scd/releases/download/latest/k8scd_linux_amd64-latest -o ~/.k8scd/k8scd
+wget https://github.com/stevenzack/k8scd/releases/download/latest/k8scd_linux_amd64_latest -O ~/.k8scd/k8scd
+chmod +x ~/.k8scd/k8scd
 cd ~/.k8scd && ./k8scd &
 ```
 
