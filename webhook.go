@@ -127,6 +127,9 @@ func dockerhubWebhook(w http.ResponseWriter, r *http.Request) {
 	}
 
 	cmd := exec.Command("kubectl", "apply", "-f", dst)
+	if strings.HasSuffix(dst, "compose.yaml") {
+		cmd = exec.Command("docker", "compose", "-f", dst, "up", "-d", "--build")
+	}
 	cmd.Stderr = log.Writer()
 	cmd.Stdout = log.Writer()
 	e = cmd.Run()

@@ -108,6 +108,9 @@ func notifier(w http.ResponseWriter, r *http.Request) {
 	fo.Close()
 
 	cmd := exec.Command("kubectl", "apply", "-f", dst)
+	if strings.HasSuffix(dst, "compose.yaml") {
+		cmd = exec.Command("docker", "compose", "-f", dst, "up", "-d", "--build")
+	}
 	cmd.Stderr = log.Writer()
 	cmd.Stdout = log.Writer()
 	e = cmd.Run()
